@@ -4,25 +4,25 @@
 @Author: xmabc
 @Des: 常用返回类型封装
 """
+import time
 
-
-def base_response(code, msg, data=None):
+def base_response(code, data=None):
     """基础返回格式"""
     if data is None:
         data = []
     result = {
         "code": code,
-        "message": msg,
-        "data": data
+        "data": data,
+        "time": int(time.time())
     }
     return result
 
 
-def success(data=None, msg=''):
+def success(data=None):
     """成功返回格式"""
-    return base_response(200, msg, data)
+    return base_response(0, data)
 
 
-def fail(code=-1, msg='', data=None):
+def fail(code=-1, data=None):
     """失败返回格式"""
-    return base_response(code, msg, data)
+    return base_response(code, data)

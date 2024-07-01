@@ -23,21 +23,21 @@ DB_ORM_CONFIG = {
                 'database': os.getenv('BASE_DB', 'xmabc_base'),
             }
         },
-        "demo": {
-            'engine': 'tortoise.backends.mysql',
-            "credentials": {
-                'host': os.getenv('DB2_HOST', '127.0.0.1'),
-                'user': os.getenv('DB2_USER', 'root'),
-                'password': os.getenv('DB2_PASSWORD', '123456'),
-                'port': int(os.getenv('DB2_PORT', 3306)),
-                'database': os.getenv('DB2_DB', 'xmabc_demo'),
-            }
-        },
+        # "demo": {
+        #     'engine': 'tortoise.backends.mysql',
+        #     "credentials": {
+        #         'host': os.getenv('DB2_HOST', '127.0.0.1'),
+        #         'user': os.getenv('DB2_USER', 'root'),
+        #         'password': os.getenv('DB2_PASSWORD', '123456'),
+        #         'port': int(os.getenv('DB2_PORT', 3306)),
+        #         'database': os.getenv('DB2_DB', 'xmabc_demo'),
+        #     }
+        # },
 
     },
     "apps": {
         "base": {"models": ["models.base"], "default_connection": "base"},
-        "demo": {"models": ["models.demo"], "default_connection": "demo"},
+        # "demo": {"models": ["models.demo"], "default_connection": "demo"},
     },
     'use_tz': False,
     'timezone': 'Asia/Shanghai'

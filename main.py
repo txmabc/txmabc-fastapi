@@ -14,6 +14,7 @@ from core.Events import startup, stopping
 from core import Exception, Events, Router, Middleware
 
 application = FastAPI(
+    title="小米爱编程",
     debug=settings.APP_DEBUG,
     docs_url=None,
     redoc_url=None,
@@ -48,8 +49,8 @@ async def custom_swagger_ui_html():
         openapi_url=application.openapi_url,
         title=application.title + " - Swagger UI",
         oauth2_redirect_url=application.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="/swagger-ui-bundle.js",
-        swagger_css_url="/swagger-ui.css",
+        swagger_js_url="/common/swagger-ui/swagger-ui-bundle.js",
+        swagger_css_url="/common/swagger-ui/swagger-ui.css",
     )
 
 
@@ -65,7 +66,7 @@ async def redoc_html():
     return get_redoc_html(
         openapi_url=application.openapi_url,
         title=application.title + " - ReDoc",
-        redoc_js_url="/swagger-ui-standalone-preset.js",
+        redoc_js_url="/common/js/redoc.standalone.js",
     )
 
 # 事件监听

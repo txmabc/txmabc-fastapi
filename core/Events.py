@@ -21,8 +21,11 @@ def startup(app: FastAPI) -> Callable:
     async def app_start() -> None:
         # APP启动完成后触发
         print("fastapi已启动")
-        # 注册数据库
-        await register_mysql(app)
+        try:
+            # 注册数据库
+            await register_mysql(app)
+        except Exception as e:
+            print(f"数据库注册失败: {e}")
         # 注入缓存到app state
         app.state.cache = await sys_cache()
 

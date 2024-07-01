@@ -13,10 +13,9 @@ from jwt import PyJWTError
 from pydantic import ValidationError
 from starlette import status
 from config import settings
-from models.base import Admin, Access
+from models.base import User, Access
 
-OAuth2 = OAuth2PasswordBearer(settings.SWAGGER_UI_OAUTH2_REDIRECT_URL, scheme_name="Admin",
-                              scopes={"is_admin": "超级管理员", "not_admin": "普通管理员"})
+OAuth2 = OAuth2PasswordBearer(settings.SWAGGER_UI_OAUTH2_REDIRECT_URL)
 
 
 def create_access_token(data: dict):
@@ -27,7 +26,7 @@ def create_access_token(data: dict):
     """
     token_data = data.copy()
     # token超时时间
-    expire = datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     # 向jwt加入超时时间
     token_data.update({"exp": expire})
     # jwt加密
@@ -46,6 +45,7 @@ async def check_permissions(req: Request, security_scopes: SecurityScopes, token
     """
     # ----------------------------------------验证JWT token------------------------------------------------------------
     try:
+        print(security_scopes.scopes)
         # token解密
         payload = jwt.decode(
             token,
@@ -55,15 +55,15 @@ async def check_permissions(req: Request, security_scopes: SecurityScopes, token
 
         if payload:
             # 用户ID
-            admin_id = payload.get("admin_id", None)
+            user_id = payload.get("user_id", None)
             # 用户类型
-            admin_type = payload.get("admin_type", None)
+            user_type = payload.get("user_type", None)
             # 无效用户信息
-            if admin_id is None or admin_type is None:
+            if user_id is None or user_type is None:
                 credentials_exception = HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="无效凭证",
-                    headers={"WWW-Authenticate": f"Bearer{token}"},
+                    headers={"WWW-Authenticate": f"Bearer {token}"},
                 )
                 raise credentials_exception
 
@@ -100,8 +100,8 @@ async def check_permissions(req: Request, security_scopes: SecurityScopes, token
         )
     # ---------------------------------------验证权限-------------------------------------------------------------------
     # 查询用户是否真实有效、或者已经被禁用
-    check_admin = await Admin().get_or_none(id=admin_id)
-    if not check_admin or check_admin.admin_status != 1:
+    check_user = await User().get_or_none(id=user_id)
+    if not check_user or check_user.status != 1:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="用户不存在或已经被管理员禁用!",
@@ -109,11 +109,14 @@ async def check_permissions(req: Request, security_scopes: SecurityScopes, token
         )
     # 判断是否设置了权限域
     if security_scopes.scopes:
+        # print(security_scopes.scopes)
+        print(user_type)
         # 非超级管理员且当前域需要验证
-        if not admin_type and security_scopes.scopes:
+        if user_type and security_scopes.scopes:
             # 未查询用户是否有对应权限
             is_pass = await Access.filter(
-                role__admin__id=admin_id, is_check=True, scopes__in=set(security_scopes.scopes)).all()
+                role__user__id=user_id, is_check=True, scopes__in=set(security_scopes.scopes)).all()
+            print(is_pass)
             if not is_pass:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -121,6 +124,6 @@ async def check_permissions(req: Request, security_scopes: SecurityScopes, token
                     headers={"scopes": security_scopes.scope_str},
                 )
     # 缓存用户ID
-    req.state.admin_id = admin_id
+    req.state.user_id = user_id
     # 缓存用户类型
-    req.state.admin_type = admin_type
+    req.state.user_type = user_type

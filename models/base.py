@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """
 @Time : 2022/4/24 10:40 AM
-@Author: Tang Xiaomi
+@Author: xmabc
 @Des: 基础模型
 """
 from enum import IntEnum, Enum
@@ -19,17 +19,17 @@ class TimestampMixin(Model):
         abstract = True
 
 
-class Admin(TimestampMixin):
-    role: fields.ManyToManyRelation["Role"] = fields.ManyToManyField("base.Role", related_name="admin",
+class User(TimestampMixin):
+    role: fields.ManyToManyRelation["Role"] = fields.ManyToManyField("base.Role", related_name="user",
                                                                      on_delete=fields.CASCADE)
-    adminname = fields.CharField(null=True, max_length=20, description="用户名")
-    admin_type = fields.BooleanField(default=False, description="用户类型 True:超级管理员 False:普通管理员")
+    username = fields.CharField(null=True, max_length=20, description="用户名")
     password = fields.CharField(null=True, max_length=255)
-    nickname = fields.CharField(default='weaimy', max_length=255, description='昵称')
-    admin_phone = fields.CharField(null=True, description="手机号", max_length=11)
-    admin_email = fields.CharField(null=True, description='邮箱', max_length=255)
+    user_type = fields.IntField(default=1, null=True, description='0超管 1家长 2机构 3老师')
+    nickname = fields.CharField(default=None, max_length=255, description='昵称')
+    user_phone = fields.CharField(null=True, description="手机号", max_length=11)
+    user_email = fields.CharField(null=True, description='邮箱', max_length=255)
     full_name = fields.CharField(null=True, description='姓名', max_length=255)
-    admin_status = fields.IntField(default=0, description='0未激活 1正常 2禁用')
+    status = fields.IntField(default=0, description='0未激活 1正常 2禁用')
     header_img = fields.CharField(null=True, max_length=255, description='头像')
     sex = fields.IntField(default=0, null=True, description='0未知 1男 2女')
     remarks = fields.CharField(null=True, max_length=30, description="备注")
@@ -37,11 +37,11 @@ class Admin(TimestampMixin):
 
     class Meta:
         table_description = "用户表"
-        table = "bs_admin"
+        table = "user"
 
 
 class Role(TimestampMixin):
-    admin: fields.ManyToManyRelation[Admin]
+    user: fields.ManyToManyRelation[User]
     role_name = fields.CharField(max_length=15, description="角色名称")
     access: fields.ManyToManyRelation["Access"] = \
         fields.ManyToManyField("base.Access", related_name="role", on_delete=fields.CASCADE)
@@ -50,7 +50,7 @@ class Role(TimestampMixin):
 
     class Meta:
         table_description = "角色表"
-        table = "bs_role"
+        table = "role"
 
 
 class Access(TimestampMixin):
@@ -65,30 +65,17 @@ class Access(TimestampMixin):
 
     class Meta:
         table_description = "权限表"
-        table = "bs_access"
+        table = "access"
 
 
 class AccessLog(TimestampMixin):
-    admin_id = fields.IntField(description="用户ID")
+    user_id = fields.IntField(description="用户ID")
     target_url = fields.CharField(null=True, description="访问的url", max_length=255)
-    admin_agent = fields.CharField(null=True, description="访问UA", max_length=255)
+    user_agent = fields.CharField(null=True, description="访问UA", max_length=255)
     request_params = fields.JSONField(null=True, description="请求参数get|post")
     ip = fields.CharField(null=True, max_length=32, description="访问IP")
     note = fields.CharField(null=True, max_length=255, description="备注")
 
     class Meta:
         table_description = "用户操作记录表"
-        table = "bs_access_log"
-
-
-# 机构
-class Institution(TimestampMixin):
-    title = fields.CharField(max_length=50, verbose_name="机构名称")
-    name = fields.CharField(max_length=50, verbose_name="联系人")
-    mobile = fields.CharField(max_length=11, verbose_name="联系电话")
-    sort = fields.IntField(default=0, verbose_name="排序")
-    status = fields.IntField(default=0, verbose_name="状态")
-
-    class Meta:
-        table_description = "机构表"
-        table = "bs_institution"
+        table = "access_log"

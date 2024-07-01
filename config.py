@@ -18,7 +18,7 @@ class Config(BaseSettings):
     APP_DEBUG: bool = True
     # 项目信息
     VERSION: str = "3.0.1"
-    PROJECT_NAME: str = "www.xmabc.net"
+    PROJECT_NAME: str = "小米爱编程"
     DESCRIPTION: str = '<a href="/redoc" target="_blank">redoc</a>'
     # 静态资源目录
     STATIC_DIR: str = os.path.join(os.getcwd(), "static")
@@ -37,7 +37,7 @@ class Config(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 24 * 60
 
-    SWAGGER_UI_OAUTH2_REDIRECT_URL: str = "/api/v1/test/oath2"
+    SWAGGER_UI_OAUTH2_REDIRECT_URL: str = "/api/common/oath2/token"
 
 
 settings = Config()
